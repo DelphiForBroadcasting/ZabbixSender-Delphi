@@ -1,4 +1,4 @@
-# zabbix-sender-delphi
+# ZabbixSender-Delphi
 
 Simple Zabbix Sender Library for Delphi
 * Development environment - Embarcadero® Delphi 10.2 <br>
