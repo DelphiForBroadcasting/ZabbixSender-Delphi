@@ -105,7 +105,16 @@ begin
   inherited Destroy;
 end;
 
-function TZabbixSender.write(const ZabbixData: string): TBytes;
+(*
+ * Header and data length
+ * Overview
+ * Header and data length are present in response and request messages between Zabbix components. It is required to determine the length of message.
+ *
+ * <HEADER> - "ZBXD\x01" (5 bytes)
+ * <DATALEN> - data length (8 bytes). 1 will be formatted as 01/00/00/00/00/00/00/00 (eight bytes, 64 bit number in little-endian format)
+ * To not exhaust memory (potentially) Zabbix protocol is limited to accept only 128MB in one connection.
+**)
+ function TZabbixSender.write(const ZabbixData: string): TBytes;
 var
   lTcpClient  : TIdTcpClient;
   lBuffer     : TIdBytes;
@@ -144,6 +153,61 @@ begin
   end;
 end;
 
+
+(*
+ * Overview
+ * Zabbix sender request
+ * Zabbix server response
+ * Alternatively Zabbix sender can send request with a timestamp
+ * Zabbix server response
+ * 4 Trapper items
+ * Overview
+ * Zabbix server uses a JSON- based communication protocol for receiving data from Zabbix sender with the help of trapper item.
+ *
+ * For definition of header and data length please refer to protocol details section.
+ *
+ * Zabbix sender request
+ * {
+ *     "request":"sender data",
+ *     "data":[
+ *         {
+ *             "host":"<hostname>",
+ *             "key":"trap",
+ *             "value":"test value"
+ *         }
+ *     ]
+ * }
+ * Zabbix server response
+ * {
+ *     "response":"success",
+ *     "info":"processed: 1; failed: 0; total: 1; seconds spent: 0.060753"
+ * }
+ * Alternatively Zabbix sender can send request with a timestamp
+ * {
+ *     "request":"sender data",
+ *     "data":[
+ *         {
+ *             "host":"<hostname>",
+ *             "key":"trap",
+ *             "value":"test value",
+ *             "clock":1516710794
+ *         },
+ *         {
+ *             "host":"<hostname>",
+ *             "key":"trap",
+ *             "value":"test value",
+ *             "clock":1516710795
+ *         }
+ *     ],
+ *     "clock":1516712029,
+ *     "ns":873386094
+ * }
+ * Zabbix server response
+ * {
+ *     "response":"success",
+ *     "info":"processed: 2; failed: 0; total: 2; seconds spent: 0.060904"
+ * }
+**)
 function TZabbixSender.Send(): TJSONObject;
 var
   i             : Integer;
