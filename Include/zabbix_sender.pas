@@ -47,11 +47,11 @@ type
   PZabbix_sender_value = ^TZabbix_sender_value;
   TZabbix_sender_value = packed record
     (* host name, must match the name of target host in Zabbix *)
-    host  : PAnsiChar;
+    host  : MarshaledAString;
     (* the item key *)
-    key   : PAnsiChar;
+    key   : MarshaledAString;
     (* the item value *)
-    value : PAnsiChar;
+    value : MarshaledAString;
   end;
 
   PZabbix_sender_info = ^TZabbix_sender_info;
@@ -86,8 +86,8 @@ type
  *               -1 - an error occurred, result contains error message        *
  *                                                                            *
  ******************************************************************************)
-function zabbix_sender_send_values(const address: PAnsiChar; port: Word; const source: PAnsiChar;
-		const  values: PZabbix_sender_value; count: Integer; var result: PAnsiChar): Integer;
+function zabbix_sender_send_values(const address: MarshaledAString; port: Word; const source: MarshaledAString;
+		const  values: PZabbix_sender_value; count: Integer; var result: MarshaledAString): Integer;
  cdecl; external link_zabbix_sender name _PU + 'zabbix_sender_send_values';
 
 (******************************************************************************
@@ -111,7 +111,7 @@ function zabbix_sender_send_values(const address: PAnsiChar; port: Word; const s
  *           the result info field, then info->total is set to -1.            *
  *                                                                            *
  ******************************************************************************)
-function zabbix_sender_parse_result(const result: PAnsiChar; var response: Integer; info: PZabbix_sender_info): Integer;
+function zabbix_sender_parse_result(const result: MarshaledAString; var response: Integer; info: PZabbix_sender_info): Integer;
  cdecl; external link_zabbix_sender name _PU + 'zabbix_sender_parse_result';
 (******************************************************************************
  *                                                                            *
